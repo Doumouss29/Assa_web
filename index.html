@@ -1,0 +1,1019 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/L.Control.Locate.min.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-search.css">
+        <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="js/leaflet-search.js"></script>
+        <script src="data/Communes_1.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[2.791705643780305,-12.851132099208105],[11.627236509168645,3.6142026009105885]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_OSMStandard_0');
+        map.getPane('pane_OSMStandard_0').style.zIndex = 400;
+        var layer_OSMStandard_0 = L.tileLayer('http://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            pane: 'pane_OSMStandard_0',
+            opacity: 1.0,
+            attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors, CC-BY-SA</a>',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_OSMStandard_0;
+        map.addLayer(layer_OSMStandard_0);
+        function pop_Communes_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ID_0'] !== null ? autolinker.link(feature.properties['ID_0'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['ISO'] !== null ? autolinker.link(feature.properties['ISO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAME_0'] !== null ? autolinker.link(feature.properties['NAME_0'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">NAME_1</th>\
+                        <td>' + (feature.properties['NAME_1'] !== null ? autolinker.link(feature.properties['NAME_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">NAME_2</th>\
+                        <td>' + (feature.properties['NAME_2'] !== null ? autolinker.link(feature.properties['NAME_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>NAME_3</strong><br />' + (feature.properties['NAME_3'] !== null ? autolinker.link(feature.properties['NAME_3'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TYPE_3'] !== null ? autolinker.link(feature.properties['TYPE_3'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Communes_1_0(feature) {
+            switch(String(feature.properties['NAME_2'])) {
+                case 'ABENGOUROU':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(215,25,28,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'ABIDJAN':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(218,37,34,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'ABOISSO':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(221,49,39,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'ADZOPE':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(224,61,45,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'AGBOVILLE':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(227,73,50,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'AGNIBILEKROU':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(230,85,56,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'BANGOLO':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(233,97,61,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'BEOUMI':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(236,108,67,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'BIANKOUMA':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(239,120,72,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'BONDOUKOU':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(242,132,78,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'BONGOUANOU':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(245,144,83,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'BOUAFLE':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(248,156,89,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'BOUAKE':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(251,168,94,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'BOUNA':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(253,177,101,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'BOUNDIALI':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(253,184,108,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DABAKALA':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(253,190,116,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DALOA':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(254,197,123,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DANANE':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(254,203,131,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DAOUKRO':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(254,210,138,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DIMBOKRO':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(254,216,146,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DIVO':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(254,223,153,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'DUEKOUE':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(254,229,161,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'FERKESSEDOUGOU':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,236,168,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'GAGNOA':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,242,176,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'GRAND-LAHOU':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,249,183,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'GUIGLO':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,191,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'ISSIA':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(248,252,189,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'KATIOLA':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(242,250,187,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'KORHOGO':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(235,247,185,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'LAKOTA':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(228,244,182,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'MAN':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(221,241,180,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'MANKONO':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(215,239,178,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'MBAHIAKRO':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(208,236,176,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'ODIENNE':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(201,233,174,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'OUME':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(195,231,172,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SAKASSOU':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(188,228,169,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SAN-PEDRO':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(181,225,167,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SASSANDRA':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(174,222,165,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SEGUELA':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(166,217,165,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SINFRA':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(156,210,167,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'SOUBRE':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(145,203,168,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'TABOU':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(135,196,170,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'TANDA':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(125,189,172,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'TENGRELA':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(115,181,174,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'TIASSALE':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(104,174,175,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'TOUBA':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(94,167,177,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'TOUMODI':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(84,160,179,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'VAVOUA':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(74,153,181,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'YAMOUSSOUKRO':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(63,145,182,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'ZUENOULA':
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(53,138,184,1.0)',
+                interactive: true,
+            }
+                    break;
+                default:
+                    return {
+                pane: 'pane_Communes_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(43,131,186,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Communes_1');
+        map.getPane('pane_Communes_1').style.zIndex = 401;
+        map.getPane('pane_Communes_1').style['mix-blend-mode'] = 'normal';
+        var layer_Communes_1 = new L.geoJson(json_Communes_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Communes_1',
+            layerName: 'layer_Communes_1',
+            pane: 'pane_Communes_1',
+            onEachFeature: pop_Communes_1,
+            style: style_Communes_1_0,
+        });
+        bounds_group.addLayer(layer_Communes_1);
+        map.addLayer(layer_Communes_1);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .title += 'Search for a place';
+        var overlaysTree = [
+            {label: 'Communes<br /><table><tr><td style="text-align: center;"><img src="legend/Communes_1_ABENGOUROU0.png" /></td><td>ABENGOUROU</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_ABIDJAN1.png" /></td><td>ABIDJAN</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_ABOISSO2.png" /></td><td>ABOISSO</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_ADZOPE3.png" /></td><td>ADZOPE</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_AGBOVILLE4.png" /></td><td>AGBOVILLE</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_AGNIBILEKROU5.png" /></td><td>AGNIBILEKROU</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_BANGOLO6.png" /></td><td>BANGOLO</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_BEOUMI7.png" /></td><td>BEOUMI</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_BIANKOUMA8.png" /></td><td>BIANKOUMA</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_BONDOUKOU9.png" /></td><td>BONDOUKOU</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_BONGOUANOU10.png" /></td><td>BONGOUANOU</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_BOUAFLE11.png" /></td><td>BOUAFLE</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_BOUAKE12.png" /></td><td>BOUAKE</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_BOUNA13.png" /></td><td>BOUNA</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_BOUNDIALI14.png" /></td><td>BOUNDIALI</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_DABAKALA15.png" /></td><td>DABAKALA</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_DALOA16.png" /></td><td>DALOA</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_DANANE17.png" /></td><td>DANANE</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_DAOUKRO18.png" /></td><td>DAOUKRO</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_DIMBOKRO19.png" /></td><td>DIMBOKRO</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_DIVO20.png" /></td><td>DIVO</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_DUEKOUE21.png" /></td><td>DUEKOUE</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_FERKESSEDOUGOU22.png" /></td><td>FERKESSEDOUGOU</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_GAGNOA23.png" /></td><td>GAGNOA</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_GRANDLAHOU24.png" /></td><td>GRAND-LAHOU</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_GUIGLO25.png" /></td><td>GUIGLO</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_ISSIA26.png" /></td><td>ISSIA</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_KATIOLA27.png" /></td><td>KATIOLA</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_KORHOGO28.png" /></td><td>KORHOGO</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_LAKOTA29.png" /></td><td>LAKOTA</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_MAN30.png" /></td><td>MAN</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_MANKONO31.png" /></td><td>MANKONO</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_MBAHIAKRO32.png" /></td><td>MBAHIAKRO</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_ODIENNE33.png" /></td><td>ODIENNE</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_OUME34.png" /></td><td>OUME</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_SAKASSOU35.png" /></td><td>SAKASSOU</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_SANPEDRO36.png" /></td><td>SAN-PEDRO</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_SASSANDRA37.png" /></td><td>SASSANDRA</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_SEGUELA38.png" /></td><td>SEGUELA</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_SINFRA39.png" /></td><td>SINFRA</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_SOUBRE40.png" /></td><td>SOUBRE</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_TABOU41.png" /></td><td>TABOU</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_TANDA42.png" /></td><td>TANDA</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_TENGRELA43.png" /></td><td>TENGRELA</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_TIASSALE44.png" /></td><td>TIASSALE</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_TOUBA45.png" /></td><td>TOUBA</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_TOUMODI46.png" /></td><td>TOUMODI</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_VAVOUA47.png" /></td><td>VAVOUA</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_YAMOUSSOUKRO48.png" /></td><td>YAMOUSSOUKRO</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_ZUENOULA49.png" /></td><td>ZUENOULA</td></tr><tr><td style="text-align: center;"><img src="legend/Communes_1_50.png" /></td><td></td></tr></table>', layer: layer_Communes_1},
+            {label: "OSM Standard", layer: layer_OSMStandard_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: false, 
+        });
+        lay.addTo(map);
+		document.addEventListener("DOMContentLoaded", function() {
+            // set new Layers List height which considers toggle icon
+            function newLayersListHeight() {
+                var layerScrollbarElement = document.querySelector('.leaflet-control-layers-scrollbar');
+                if (layerScrollbarElement) {
+                    var layersListElement = document.querySelector('.leaflet-control-layers-list');
+                    var originalHeight = layersListElement.style.height 
+                        || window.getComputedStyle(layersListElement).height;
+                    var newHeight = parseFloat(originalHeight) - 50;
+                    layersListElement.style.height = newHeight + 'px';
+                }
+            }
+            var isLayersListExpanded = true;
+            var controlLayersElement = document.querySelector('.leaflet-control-layers');
+            var toggleLayerControl = document.querySelector('.leaflet-control-layers-toggle');
+            // toggle Collapsed/Expanded and apply new Layers List height
+            toggleLayerControl.addEventListener('click', function() {
+                if (isLayersListExpanded) {
+                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
+                } else {
+                    controlLayersElement.classList.add('leaflet-control-layers-expanded');
+                }
+                isLayersListExpanded = !isLayersListExpanded;
+                newLayersListHeight()
+            });	
+			// apply new Layers List height if toggle layerstree
+			if (controlLayersElement) {
+				controlLayersElement.addEventListener('click', function(event) {
+					var toggleLayerHeaderPointer = event.target.closest('.leaflet-layerstree-header-pointer span');
+					if (toggleLayerHeaderPointer) {
+						newLayersListHeight();
+					}
+				});
+			}
+            // Collapsed/Expanded at Start to apply new height
+            setTimeout(function() {
+                toggleLayerControl.click();
+            }, 10);
+            setTimeout(function() {
+                toggleLayerControl.click();
+            }, 10);
+            // Collapsed touch/small screen
+            var isSmallScreen = window.innerWidth < 650;
+            if (isSmallScreen) {
+                setTimeout(function() {
+                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
+                    isLayersListExpanded = !isLayersListExpanded;
+                }, 500);
+            }  
+        });       
+        setBounds();
+        map.addControl(new L.Control.Search({
+            layer: layer_Communes_1,
+            initial: false,
+            hideMarkerOnCollapse: true,
+            propertyName: 'NAME_2'}));
+        document.getElementsByClassName('search-button')[0].className +=
+         ' fa fa-binoculars';
+        resetLabels([layer_Communes_1]);
+        map.on("zoomend", function(){
+            resetLabels([layer_Communes_1]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_Communes_1]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_Communes_1]);
+        });
+        </script>
+    </body>
+</html>
